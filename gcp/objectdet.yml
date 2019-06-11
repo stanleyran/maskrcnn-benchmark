@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sfr-pod-ran-xu-maskrcnn
+  namespace: sfr-ns-ran-xu
+spec:
+  restartPolicy: Never
+  volumes:
+    - name: sfr-home-pv-ran-xu
+      persistentVolumeClaim:
+        claimName: sfr-home-pvc-ran-xu
+    - name: sfr-share-pv-ran-xu
+      persistentVolumeClaim:
+        claimName: sfr-share-pvc-ran-xu
+  containers:
+    - name: ranxu-maskrcnn
+      image: "gcr.io/salesforce-research-internal/cramaiah_pod"
+      #image: "gcr.io/salesforce-research-internal/zeyuan-chen"
+      command: ["sleep", "infinity"]
+      #command: ["/bin/bash", "-c", "echo test"]
+      resources:
+        limits:
+          nvidia.com/gpu: 2
+          cpu: "7"
+          #memory: "45Gi"
+      volumeMounts:
+        - name: sfr-home-pv-ran-xu
+          mountPath: "/export/home/"
+        - name: sfr-share-pv-ran-xu
+          mountPath: "/export/share"
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: sfr-node-type
+            operator: In
+            values:
+            - gpu2
